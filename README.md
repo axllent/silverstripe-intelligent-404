@@ -1,8 +1,8 @@
 # Intelligent 404 Redirector for SilverStripe 3
- An extension to add additional functionality to the existing 404 ErrorPage.
- If a 404 page is called, it tries to guess the intended page by matching up the
- last segments of the url to all SiteTree pages. It also uses soundex to match similar
- sounding pages to find toher alternatives.
+An extension to add additional functionality to the existing 404 ErrorPage.
+If a 404 page is called, it tries to guess the intended page by matching up the
+last segments of the url to all SiteTree pages. It also uses soundex to match similar
+sounding pages to find toher alternatives.
 
 ## How it works
 If a 404 error is detected (**note:** does not work in dev mode!):
@@ -20,7 +20,8 @@ possible options is shown (ie: "Were you looking for one of the following pages?
 * SilverStripe 3+
 
 ## Usage
-Copy the silverstripe-intelligent-404 directory to the root folder of your website installation.
+Copy the silverstripe-intelligent-404 directory to the root folder of your website installation. Please note
+that this will only work if you website is **not in development mode** (ie: for testing and detecting actual 404 pages).
 
 In your mysite/_config.php you can optionally define different ignored ClassNames:
 <pre>Intelligent404::$IgnoreClassNames = array('ErrorPage','RedirectorPage','VirtualPage');</pre>

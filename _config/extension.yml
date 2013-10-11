@@ -1,0 +1,3 @@
+ErrorPage_Controller:
+  extensions:
+    - Intelligent404

@@ -6,6 +6,7 @@
 
 ## How it works
 If a 404 error is detected (**note:** does not work in dev mode!):
+
 1. It will search SiteTree for all matching URLSegments, as well as any that sound the same
 (using PHP's [soundex()](http://php.net/manual/en/function.soundex.php)).
 2. Else if 1 **exact** match is found, a 301 redirect is sent.

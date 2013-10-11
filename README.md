@@ -11,8 +11,8 @@ If a 404 error is detected (**note:** does not work in dev mode!):
 2. Else if 1 **exact** match is found, a 301 redirect is sent.
 3. Else if **no exact** match is found, and 1 **similar** page is found, a 301 redirect is sent
 to the similar page.
-4. Else if more than 1 exact or similar page is found, a regular 404 page is shown, and the list
-of options is shown (ie: "Were you looking for one of the following pages?") directly beneath it.
+4. Else if more than 1 exact or similar page is found, a regular 404 page is shown and the list of
+possible options is shown (ie: "Were you looking for one of the following pages?") directly beneath it.
 5. Else a regular 404 page is shown.
 
 ## Requirements
@@ -22,6 +22,6 @@ of options is shown (ie: "Were you looking for one of the following pages?") dir
 Copy the silverstripe-intelligent-404 directory to the root folder of your website installation.
 
 In your mysite/_config.php you can optionally define different ignored ClassNames:
-<pre>Intelligent404::$IgnoreClassNames = array('ErrorPage', 'RedirectorPage', 'VirtualPage');</pre>
+<pre>Intelligent404::$IgnoreClassNames = array('ErrorPage','RedirectorPage','VirtualPage');</pre>
 and/or define a different heading above possible alternatives:
 <pre>Intelligent404::$OptionsHeader = '&lt;h3&gt;Were you looking for one of the following?&lt;/h3&gt;';</pre>

@@ -1,0 +1,23 @@
+{
+	name: "axllent/silverstripe-intelligent-404",
+	description: "Add additional smart resirection functionality to the existing 404 ErrorPage",
+	type: "silverstripe-module",
+	homepage: "https://github.com/axllent/silverstripe-intelligent-404",
+	keywords: [
+		"silverstripe",
+		"redirect"
+	],
+	license: "The MIT License (MIT)",
+	authors: [
+		{
+			name: "Ralph Slooten",
+			homepage: "http://www.axllent.org/"
+		}
+	],
+	support: {
+		issues: "https://github.com/axllent/silverstripe-intelligent-404/issues"
+	},
+	require: {
+		silverstripe/framework: "3.*"
+	}
+}

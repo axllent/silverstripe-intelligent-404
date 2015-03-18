@@ -20,10 +20,14 @@ possible options is shown (ie: "Were you looking for one of the following pages?
 * SilverStripe 3+
 
 ## Usage
-Copy the silverstripe-intelligent-404 directory to the root folder of your website installation. Please note
+Copy the intelligent-404 directory to the root folder of your website installation. Please note
 that this will only work if you website is **not in development mode** (ie: for testing and detecting actual 404 pages).
 
-In your mysite/_config.php you can optionally define different ignored ClassNames:
-<pre>Intelligent404::$IgnoreClassNames = array('ErrorPage','RedirectorPage','VirtualPage');</pre>
-and/or define a different heading above possible alternatives:
-<pre>Intelligent404::$OptionsHeader = '&lt;h3&gt;Were you looking for one of the following?&lt;/h3&gt;';</pre>
+In your `mysite/_config/config.yml` you can optionally define different ignored ClassNames:
+```
+ErrorPage:
+  intelligent_404_ignored_classes:
+    - ErrorPage
+    - RedirectorPage
+    - VirtualPage
+```

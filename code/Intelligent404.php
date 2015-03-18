@@ -16,10 +16,6 @@
 
 class Intelligent404 extends Extension {
 
-	public static $OptionsHeader = '<h3>Were you looking for one of the following?</h3>';
-
-	public static $IgnoreClassNames = array('ErrorPage', 'RedirectorPage', 'VirtualPage');
-
 	public function onAfterInit() {
 
 		if (!Director::isDev()) { // Only on live site
@@ -34,8 +30,27 @@ class Intelligent404 extends Extension {
 				$page_key = array_pop($parts);
 				$sounds_like = soundex($page_key);
 
-				$SiteTree = SiteTree::get()->exclude('ClassName', self::$IgnoreClassNames);
-
+				// extend ignored classes with child classes
+				$ignoreClassNames = array();
+				if ($configClasses = $this->owner->config()->get("intelligent_404_ignored_classes")) {
+					foreach ($configClasses as $class) {
+						$ignoreClassNames = array_merge($ignoreClassNames, array_values(ClassInfo::subclassesFor($class)));
+					}
+				}
+				
+				// get all pages
+				$SiteTree = SiteTree::get()->exclude('ClassName', $ignoreClassNames);
+				
+				// translatable support
+				if (class_exists('Translatable')) {
+					$SiteTree = $SiteTree->filter('Locale', Translatable::get_current_locale());
+				}
+				
+				// Multisites support
+				if (class_exists('Multisites')) {
+					$SiteTree = $SiteTree->filter('SiteID', Multisites::inst()->getCurrentSiteId());
+				}
+				
 				$ExactMatches = new ArrayList();
 				$PossibleMatches = new ArrayList();
 
@@ -58,17 +73,15 @@ class Intelligent404 extends Extension {
 
 				else if ($ExactCount > 1 || $PossibleCount > 1) {
 
-					$this->owner->Content .= self::$OptionsHeader . '<ul>';
-
 					$ExactMatches->merge($PossibleMatches);
+					
+					$content = $this->owner->customise(array(
+					    'Pages' => $ExactMatches
+					))->renderWith(
+					    array('Intelligent404Options')
+					);
 
-					foreach ($ExactMatches as $p)
-						$this->owner->Content .= '<li><a href="' . $p->Link() . '">
-							<strong>' . htmlspecialchars($p->MenuTitle) . '</strong> -
-							<i>' . $p->Link() . '</i></a>
-						</li>';
-
-					$this->owner->Content .= '</ul>';
+					$this->owner->Content .= $content;
 				}
 
 			}

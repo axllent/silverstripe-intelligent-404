@@ -21,6 +21,6 @@
 		"silverstripe/framework": "3.1.*"
 	},
 	"extra": {
-		"installer-name": "backlink"
+		"installer-name": "intelligent-404"
 	}
 }

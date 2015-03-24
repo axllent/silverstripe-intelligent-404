@@ -18,9 +18,6 @@
 		"issues": "https://github.com/axllent/silverstripe-intelligent-404/issues"
 	},
 	"require": {
-		"silverstripe/framework": "3.1.*"
-	},
-	"extra": {
-		"installer-name": "intelligent-404"
+		"silverstripe/framework": "3.*"
 	}
 }

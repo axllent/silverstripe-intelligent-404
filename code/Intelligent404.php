@@ -4,9 +4,9 @@
  * ============================
  *
  * Extension to add additional functionality to the existing 404 ErrorPage.
- * It tries to guess the intended page by matching up the last segments of
+ * It tries to guess the intended page by matching up the last segment of
  * the url to all SiteTree pages. It also uses soundex to match similar
- * sounding pages to find toher alternatives.
+ * sounding pages to find other alternatives.
  *
  * Extract into your SilverStripe 3 installation directory.
  *
@@ -37,26 +37,27 @@ class Intelligent404 extends Extension {
 						$ignoreClassNames = array_merge($ignoreClassNames, array_values(ClassInfo::subclassesFor($class)));
 					}
 				}
-				
+
 				// get all pages
 				$SiteTree = SiteTree::get()->exclude('ClassName', $ignoreClassNames);
-				
-				// translatable support
+
+				// Translatable support
 				if (class_exists('Translatable')) {
 					$SiteTree = $SiteTree->filter('Locale', Translatable::get_current_locale());
 				}
-				
+
 				// Multisites support
 				if (class_exists('Multisites')) {
 					$SiteTree = $SiteTree->filter('SiteID', Multisites::inst()->getCurrentSiteId());
 				}
-				
+
 				$ExactMatches = new ArrayList();
 				$PossibleMatches = new ArrayList();
 
 				foreach ($SiteTree as $page) {
-					if ($page->URLSegment == $page_key)
+					if ($page->URLSegment == $page_key) {
 						$ExactMatches->push($page);
+					}
 					else if ($sounds_like == soundex($page->URLSegment)) {
 						$PossibleMatches->push($page);
 					}
@@ -65,16 +66,18 @@ class Intelligent404 extends Extension {
 				$ExactCount = $ExactMatches->Count();
 				$PossibleCount = $PossibleMatches->Count();
 
-				if ($ExactCount == 1)
+				if ($ExactCount == 1) {
 					return $this->RedirectToPage($ExactMatches->First()->Link());
+				}
 
-				else if ($ExactCount == 0 && $PossibleCount == 1)
+				else if ($ExactCount == 0 && $PossibleCount == 1) {
 					return $this->RedirectToPage($PossibleMatches->First()->Link());
+				}
 
 				else if ($ExactCount > 1 || $PossibleCount > 1) {
 
 					$ExactMatches->merge($PossibleMatches);
-					
+
 					$content = $this->owner->customise(array(
 					    'Pages' => $ExactMatches
 					))->renderWith(

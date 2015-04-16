@@ -1,4 +1,4 @@
-ErrorPage:
+Intelligent404:
   intelligent_404_ignored_classes:
     - ErrorPage
     - RedirectorPage

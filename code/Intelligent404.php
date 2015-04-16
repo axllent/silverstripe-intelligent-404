@@ -32,7 +32,7 @@ class Intelligent404 extends Extension {
 
 				// extend ignored classes with child classes
 				$ignoreClassNames = array();
-				if ($configClasses = $this->owner->config()->get("intelligent_404_ignored_classes")) {
+				if ($configClasses = Config::inst()->get('Intelligent404', 'intelligent_404_ignored_classes')) {
 					foreach ($configClasses as $class) {
 						$ignoreClassNames = array_merge($ignoreClassNames, array_values(ClassInfo::subclassesFor($class)));
 					}

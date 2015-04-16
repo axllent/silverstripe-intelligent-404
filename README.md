@@ -25,7 +25,7 @@ that this will only work if you website is **not in development mode** (ie: for 
 
 In your `mysite/_config/config.yml` you can optionally define different ignored ClassNames:
 ```
-ErrorPage:
+Intelligent404:
   intelligent_404_ignored_classes:
     - ErrorPage
     - RedirectorPage

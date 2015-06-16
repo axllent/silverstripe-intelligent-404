@@ -25,7 +25,7 @@ class Intelligent404 extends Extension {
 			$extract = preg_match('/^([a-z0-9\.\_\-\/]+)/i', $_SERVER['REQUEST_URI'], $rawString);
 
 			if ($errorcode == 404 && $extract) {
-				$uri = preg_replace('/\.(aspx?|html?|php[34]?)$/', '', $rawString[0]);
+				$uri = preg_replace('/\.(aspx?|html?|php[34]?)$/i', '', $rawString[0]);
 				$parts = preg_split('/\//', $uri, -1, PREG_SPLIT_NO_EMPTY);
 				$page_key = array_pop($parts);
 				$sounds_like = soundex($page_key);
@@ -58,7 +58,7 @@ class Intelligent404 extends Extension {
 					if ($page->URLSegment == $page_key) {
 						$ExactMatches->push($page);
 					}
-					else if ($sounds_like == soundex($page->URLSegment)) {
+					elseif ($sounds_like == soundex($page->URLSegment)) {
 						$PossibleMatches->push($page);
 					}
 				}
@@ -70,20 +70,17 @@ class Intelligent404 extends Extension {
 					return $this->RedirectToPage($ExactMatches->First()->Link());
 				}
 
-				else if ($ExactCount == 0 && $PossibleCount == 1) {
+				elseif ($ExactCount == 0 && $PossibleCount == 1) {
 					return $this->RedirectToPage($PossibleMatches->First()->Link());
 				}
 
-				else if ($ExactCount > 1 || $PossibleCount > 1) {
-
+				elseif ($ExactCount > 1 || $PossibleCount > 1) {
 					$ExactMatches->merge($PossibleMatches);
-
 					$content = $this->owner->customise(array(
 					    'Pages' => $ExactMatches
 					))->renderWith(
 					    array('Intelligent404Options')
 					);
-
 					$this->owner->Content .= $content;
 				}
 
@@ -99,10 +96,9 @@ class Intelligent404 extends Extension {
 	 * @return 301 response / redirect
 	 */
 	public function RedirectToPage($url) {
-		$response = new SS_HTTPResponse_Exception();
-		$response->getResponse()->redirect($url, 301);
-		$this->owner->popCurrent();
-		throw $response;
+		$response = new SS_HTTPResponse();
+		$response->redirect($url, 301);
+		throw new SS_HTTPResponse_Exception($response);
 	}
 
 }

@@ -1,6 +1,6 @@
 {
 	"name": "axllent/silverstripe-intelligent-404",
-	"description": "Add additional smart resirection functionality to the existing 404 ErrorPage",
+	"description": "Add additional smart redirection functionality to the existing 404 ErrorPage",
 	"type": "silverstripe-module",
 	"homepage": "https://github.com/axllent/silverstripe-intelligent-404",
 	"keywords": [

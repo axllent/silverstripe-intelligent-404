@@ -66,11 +66,13 @@ class Intelligent404 extends Extension
                 $ExactCount = $ExactMatches->Count();
                 $PossibleCount = $PossibleMatches->Count();
 
-                if ($ExactCount == 1) {
+                $redirectOnSingleMatch = Config::inst()->get('Intelligent404', 'redirect_on_single_match');
+
+                if ($ExactCount == 1 && $redirectOnSingleMatch) {
                     return $this->RedirectToPage($ExactMatches->First()->Link());
-                } elseif ($ExactCount == 0 && $PossibleCount == 1) {
+                } elseif ($ExactCount == 0 && $PossibleCount == 1 && $redirectOnSingleMatch) {
                     return $this->RedirectToPage($PossibleMatches->First()->Link());
-                } elseif ($ExactCount > 1 || $PossibleCount > 1) {
+                } elseif ($ExactCount > 1 || $PossibleCount > 1 || !$redirectOnSingleMatch) {
                     $ExactMatches->merge($PossibleMatches);
                     $content = $this->owner->customise(array(
                         'Pages' => $ExactMatches

@@ -3,3 +3,4 @@ Intelligent404:
     - ErrorPage
     - RedirectorPage
     - VirtualPage
+  redirect_on_single_match: true

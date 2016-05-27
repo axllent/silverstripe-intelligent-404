@@ -72,7 +72,7 @@ class Intelligent404 extends Extension
                     return $this->RedirectToPage($ExactMatches->First()->Link());
                 } elseif ($ExactCount == 0 && $PossibleCount == 1 && $redirectOnSingleMatch) {
                     return $this->RedirectToPage($PossibleMatches->First()->Link());
-                } elseif ($ExactCount > 1 || $PossibleCount > 1) {
+                } elseif ($ExactCount > 1 || $PossibleCount > 1 || !$redirectOnSingleMatch) {
                     $ExactMatches->merge($PossibleMatches);
                     $content = $this->owner->customise(array(
                         'Pages' => $ExactMatches

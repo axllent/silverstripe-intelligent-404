@@ -5,12 +5,12 @@ last segment of the url to all SiteTree pages. It also uses soundex to match sim
 sounding pages to find other alternatives.
 
 ## How it works
-If a 404 error is detected (**note:** does not work in dev mode!):
+If a 404 error is detected (**note:** does not work in `dev` mode!):
 
 1. It will search SiteTree for all matching URLSegments, as well as any that sound the same
 (using PHP's [soundex()](http://php.net/manual/en/function.soundex.php)).
-2. If 1 **exact** match is found, a 301 redirect is sent.
-3. Else if **no exact** match is found, and 1 **similar** page is found, a 301 redirect is sent
+2. If **1 exact** match is found, a 301 redirect is sent.
+3. Else if **no exact** match is found, and **1 similar** page is found, a 301 redirect is sent
 to the similar page.
 4. Else if more than 1 exact or similar page is found, a regular 404 page is shown and the list of
 possible options is shown (ie: "Were you looking for one of the following pages?") directly beneath it.
@@ -30,4 +30,10 @@ Intelligent404:
     - ErrorPage
     - RedirectorPage
     - VirtualPage
+```
+
+If you prefer **not** to redirect automatically if a **single possible match** is found, the following option will fall back to either SilverStripe's legacy redirect module, and if that fails simply provide a single possible link:
+```
+Intelligent404:
+  redirect_on_single_match: false
 ```

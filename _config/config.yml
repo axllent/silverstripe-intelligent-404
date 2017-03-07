@@ -1,6 +1,12 @@
-Intelligent404:
-  intelligent_404_ignored_classes:
-    - ErrorPage
-    - RedirectorPage
-    - VirtualPage
-  redirect_on_single_match: true
+Axllent\Intelligent404\Intelligent404:
+  allow_in_dev_mode: false            # allow this to work in dev mode
+  redirect_on_single_match: true      # auto-redirect if only one exact match is found
+  data_objects:
+    \SilverStripe\CMS\Model\SiteTree:
+      url_segment: URLSegment
+      exclude:                        # limit to only these results ($do->get()->exclude($exclude))
+        ClassName:
+          - SilverStripe\CMS\Model\ErrorPage
+          - SilverStripe\CMS\Model\RedirectorPage
+          - SilverStripe\CMS\Model\VirtualPage
+      where: []                       # limit to only these results ($do->get()->where($where))

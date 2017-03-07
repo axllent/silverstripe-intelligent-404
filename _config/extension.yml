@@ -1,3 +1,3 @@
-ErrorPage_Controller:
+SilverStripe\CMS\Model\ErrorPageController:
   extensions:
-    - Intelligent404
+    - Axllent\Intelligent404\Intelligent404

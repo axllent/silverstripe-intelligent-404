@@ -9,4 +9,4 @@ Axllent\Intelligent404\Intelligent404:
           - SilverStripe\CMS\Model\ErrorPage
           - SilverStripe\CMS\Model\RedirectorPage
           - SilverStripe\CMS\Model\VirtualPage
-      where: []                       # limit to only these results ($do->get()->where($where))
+      include: []                     # limit to only these results ($do->get()->where($where))

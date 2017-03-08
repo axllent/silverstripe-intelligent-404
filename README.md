@@ -1,11 +1,13 @@
-# Intelligent 404 Redirector for SilverStripe 3
+# Intelligent 404 Redirector for SilverStripe
 An extension to add additional functionality to the existing 404 ErrorPage.
 If a 404 page is called, it tries to guess the intended page by matching up the
 last segment of the url to all SiteTree pages. It also uses soundex to match similar
 sounding pages to find other alternatives.
 
+Other DataObjects (eg: products) can be added too provided they contain a `Link()` function
+
 ## How it works
-If a 404 error is detected (**note:** does not work in `dev` mode!):
+If a 404 error is detected (**note:** does not work in `dev` mode by default):
 
 1. It will search SiteTree for all matching URLSegments, as well as any that sound the same
 (using PHP's [soundex()](http://php.net/manual/en/function.soundex.php)).
@@ -17,23 +19,14 @@ possible options is shown (ie: "Were you looking for one of the following pages?
 5. Else a regular 404 page is shown.
 
 ## Requirements
-* SilverStripe 3+
+* SilverStripe 4
+
+For SilverStripe 3, please refer to the [SilverStripe3 branch](https://github.com/axllent/silverstripe-intelligent-404/tree/silverstripe3).
+
+## Installation
+```bash
+composer require axllent/silverstripe-intelligent-404
+```
 
 ## Usage
-Copy the intelligent-404 directory to the root folder of your website installation. Please note
-that this will only work if you website is **not in development mode** (ie: for testing and detecting actual 404 pages).
-
-In your `mysite/_config/config.yml` you can optionally define different ignored ClassNames:
-```
-Intelligent404:
-  intelligent_404_ignored_classes:
-    - ErrorPage
-    - RedirectorPage
-    - VirtualPage
-```
-
-If you prefer **not** to redirect automatically if a **single possible match** is found, the following option will fall back to either SilverStripe's legacy redirect module, and if that fails simply provide a single possible link:
-```
-Intelligent404:
-  redirect_on_single_match: false
-```
+Please see [Configuration.md](docs/en/Configuration.md) for configuration options and documentation.

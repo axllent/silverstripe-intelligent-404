@@ -1,14 +1,24 @@
 <?php
+
+namespace Axllent\Intelligent404;
+
+use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPResponse_Exception;
+use SilverStripe\Control\HTTPResponse;
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Extension;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataList;
+
 /**
  * SilverStripe Intelligent 404
  * ============================
  *
  * Extension to add additional functionality to the existing 404 ErrorPage.
  * It tries to guess the intended page by matching up the last segment of
- * the url to all SiteTree pages. It also uses soundex to match similar
- * sounding pages to find other alternatives.
- *
- * Extract into your SilverStripe 3 installation directory.
+ * the url to all SiteTree pages (and optionally other DataObjects).
+ * It also uses soundex to match similar sounding page links to find alternatives.
  *
  * License: MIT-style license http://opensource.org/licenses/MIT
  * Authors: Techno Joy development team (www.technojoy.co.nz)
@@ -19,67 +29,92 @@ class Intelligent404 extends Extension
 
     public function onAfterInit()
     {
-        if (!Director::isDev()) { // Only on live site
+
+        if (
+            !Director::isDev() ||
+            Config::inst()->get('Axllent\\Intelligent404\\Intelligent404', 'allow_in_dev_mode')
+        ) {
 
             $errorcode = $this->owner->failover->ErrorCode ? $this->owner->failover->ErrorCode : 404;
 
             $extract = preg_match('/^([a-z0-9\.\_\-\/]+)/i', $_SERVER['REQUEST_URI'], $rawString);
 
             if ($errorcode == 404 && $extract) {
-                $uri = preg_replace('/\.(aspx?|html?|php[34]?)$/i', '', $rawString[0]);
+                $uri = preg_replace('/\.(aspx?|html?|php[34]?)$/i', '', $rawString[0]); // trip known page extensions
                 $parts = preg_split('/\//', $uri, -1, PREG_SPLIT_NO_EMPTY);
                 $page_key = array_pop($parts);
                 $sounds_like = soundex($page_key);
 
-                // extend ignored classes with child classes
-                $ignoreClassNames = array();
-                if ($configClasses = Config::inst()->get('Intelligent404', 'intelligent_404_ignored_classes')) {
-                    foreach ($configClasses as $class) {
-                        $ignoreClassNames = array_merge($ignoreClassNames, array_values(ClassInfo::subclassesFor($class)));
+                $exact_matches = array();
+                $possible_matches = array();
+
+                $results_list = array();
+
+                $data_objects = Config::inst()->get('Axllent\\Intelligent404\\Intelligent404', 'data_objects');
+
+                if (!$data_objects || !is_array($data_objects)) {
+                    return;
+                }
+
+                foreach ($data_objects as $class => $config) {
+                    if (
+                        !ClassInfo::exists($class) ||
+                        !method_exists($class, 'Link')
+                    ) {
+                        continue; // invalid class (does not exist)
+                    }
+
+                    $group = !empty($config['group']) ? $config['group'] : 'Pages';
+
+                    if (empty($results_list[$group])) {
+                        $results_list[$group] = ArrayList::create();
+                    }
+
+                    $results = $class::get(); // all results
+
+                    if (!empty($config['filter'])) {
+                        $results = $results->filter($config['filter']); // filter
+                    }
+
+                    if (!empty($config['exclude'])) {
+                        $results = $results->exclude($config['exclude']); // exclude
+                    }
+
+                    foreach ($results as $result) {
+                        $link = $result->Link();
+
+                        $rel_link = Director::makeRelative($link);
+
+                        if (!$rel_link) continue; // no link or /
+
+                        $url_parts = preg_split('/\//', $rel_link, -1, PREG_SPLIT_NO_EMPTY);
+
+                        $url_segment = end($url_parts);
+
+                        if ($url_segment == $page_key) {
+                            $results_list[$group]->push($result);
+                            $exact_matches[$link] = $link;
+                        } elseif ($sounds_like == soundex($url_segment)) {
+                            $results_list[$group]->push($result);
+                            $possible_matches[$link] = $link;
+                        }
                     }
                 }
 
-                // get all pages
-                $SiteTree = SiteTree::get()->exclude('ClassName', $ignoreClassNames);
+                $exact_count = count($exact_matches);
+                $possible_count = count($possible_matches);
 
-                // Translatable support
-                if (class_exists('Translatable')) {
-                    $SiteTree = $SiteTree->filter('Locale', Translatable::get_current_locale());
-                }
+                $redirect_on_single_match = Config::inst()->get('Axllent\\Intelligent404\\Intelligent404', 'redirect_on_single_match');
 
-                // Multisites support
-                if (class_exists('Multisites')) {
-                    $SiteTree = $SiteTree->filter('SiteID', Multisites::inst()->getCurrentSiteId());
-                }
-
-                $ExactMatches = new ArrayList();
-                $PossibleMatches = new ArrayList();
-
-                foreach ($SiteTree as $page) {
-                    if ($page->URLSegment == $page_key) {
-                        $ExactMatches->push($page);
-                    } elseif ($sounds_like == soundex($page->URLSegment)) {
-                        $PossibleMatches->push($page);
-                    }
-                }
-
-                $ExactCount = $ExactMatches->Count();
-                $PossibleCount = $PossibleMatches->Count();
-
-                $redirectOnSingleMatch = Config::inst()->get('Intelligent404', 'redirect_on_single_match');
-
-                if ($ExactCount == 1 && $redirectOnSingleMatch) {
-                    return $this->RedirectToPage($ExactMatches->First()->Link());
-                } elseif ($ExactCount == 0 && $PossibleCount == 1 && $redirectOnSingleMatch) {
-                    return $this->RedirectToPage($PossibleMatches->First()->Link());
-                } elseif ($ExactCount > 1 || $PossibleCount > 1 || !$redirectOnSingleMatch) {
-                    $ExactMatches->merge($PossibleMatches);
-                    $content = $this->owner->customise(array(
-                        'Pages' => $ExactMatches
-                    ))->renderWith(
+                if ($exact_count == 1 && $redirect_on_single_match) {
+                    return $this->RedirectToPage(array_shift($exact_matches));
+                } elseif ($exact_count == 0 && $possible_count == 1 && $redirect_on_single_match) {
+                    return $this->RedirectToPage(array_shift($possible_matches));
+                } elseif ($exact_count > 0 || $possible_count > 0) {
+                    $content = $this->owner->customise($results_list)->renderWith(
                         array('Intelligent404Options')
                     );
-                    $this->owner->Content .= $content;
+                    $this->owner->Content .= $content; // add to $Content
                 }
             }
         }
@@ -92,8 +127,8 @@ class Intelligent404 extends Extension
      */
     public function RedirectToPage($url)
     {
-        $response = new SS_HTTPResponse();
+        $response = new HTTPResponse();
         $response->redirect($url, 301);
-        throw new SS_HTTPResponse_Exception($response);
+        throw new HTTPResponse_Exception($response);
     }
 }

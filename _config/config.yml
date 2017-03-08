@@ -3,10 +3,10 @@ Axllent\Intelligent404\Intelligent404:
   redirect_on_single_match: true      # auto-redirect if only one exact match is found
   data_objects:
     \SilverStripe\CMS\Model\SiteTree:
-      url_segment: URLSegment
-      exclude:                        # limit to only these results ($do->get()->exclude($exclude))
+      group: Pages                    # The ArrayList to be supplied to the template
+      filter: []                      # $do->get()->filter($where)
+      exclude:                        # $do->get()->exclude($exclude)
         ClassName:
           - SilverStripe\CMS\Model\ErrorPage
           - SilverStripe\CMS\Model\RedirectorPage
           - SilverStripe\CMS\Model\VirtualPage
-      include: []                     # limit to only these results ($do->get()->where($where))

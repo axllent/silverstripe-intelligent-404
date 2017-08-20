@@ -1,6 +1,6 @@
 # Configuration
 
-By default Intelligent404 will just try match 404 pages with *all pages* in your SiteTree, except for pages with the classnames:
+By default Intelligent-404 will just try match 404 pages with *all pages* in your SiteTree, except for pages with the classnames:
 
 - `SilverStripe\CMS\Model\ErrorPage`
 - `SilverStripe\CMS\Model\RedirectorPage`
@@ -9,7 +9,7 @@ By default Intelligent404 will just try match 404 pages with *all pages* in your
 This means that any page types you add should autmatically be included, and can optionally be excluded as well.
 
 ## Generic options
-By default Intelligent404 will not work in dev mode (to help you spot issues). You can turn this on by setting `allow_in_dev_mode: true`.
+By default Intelligent-404 will not work in dev mode (to help you spot issues). You can turn this on by setting `allow_in_dev_mode: true`.
 
 By default the module will also redirect is either 1 exact match or one potential match is found (eg: the page has been recreated elsewhere).
 You can change this by setting `redirect_on_single_match: false`.
@@ -22,7 +22,7 @@ Axllent\Intelligent404\Intelligent404:
 
 ## Adding other DataObjects
 
-It is possible to add other DataObjects to the Intelligent404 matching (such as a product database), provided that the DataObject has a `Link()` function. To add your own DataObjects, create a yml config (eg: `mysite/_config/intelligent404.yml`) with the following syntax:
+It is possible to add other DataObjects to the Intelligent-404 matching (such as a product database), provided that the DataObject has a `Link()` function. To add your own DataObjects, create a yml config (eg: `mysite/_config/intelligent404.yml`) with the following syntax:
 
 ```yml
 Axllent\Intelligent404\Intelligent404:

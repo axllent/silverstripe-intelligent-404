@@ -17,7 +17,9 @@
 	"support": {
 		"issues": "https://github.com/axllent/silverstripe-intelligent-404/issues"
 	},
-	"require": {
-		"silverstripe/framework": "3.*"
-	}
+    "autoload": {
+        "psr-4": {
+            "Axllent\\Intelligent404\\": "src/"
+        }
+    }
 }

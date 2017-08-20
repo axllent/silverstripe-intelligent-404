@@ -27,9 +27,40 @@ use SilverStripe\ORM\DataList;
 class Intelligent404 extends Extension
 {
 
+    /**
+     * @config
+     * allow this to work in dev mode
+     */
+    private static $allow_in_dev_mode = false;
+
+    /**
+     * @config
+     * auto-redirect if only one exact match is found
+     */
+    private static $redirect_on_single_match = true;
+
+    /**
+     * @config
+     * auto-redirect if only one exact match is found
+     */
+    private static $data_objects = [
+        '\\SilverStripe\\CMS\\Model\\SiteTree' => [
+            'group' => 'Pages',
+            'filter' => [],
+            'exclude' => [
+                'ClassName' => [
+                    'SilverStripe\\CMS\\Model\\ErrorPage',
+                    'SilverStripe\\CMS\\Model\\RedirectorPage',
+                    'SilverStripe\\CMS\\Model\\VirtualPage'
+                ]
+            ]
+        ]
+    ];
+
+
+
     public function onAfterInit()
     {
-
         if (
             !Director::isDev() ||
             Config::inst()->get('Axllent\\Intelligent404\\Intelligent404', 'allow_in_dev_mode')

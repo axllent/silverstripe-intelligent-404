@@ -8,6 +8,7 @@ use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Extension;
+use SilverStripe\ErrorPage\ErrorPage;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
 
@@ -19,14 +20,10 @@ use SilverStripe\ORM\DataList;
  * It tries to guess the intended page by matching up the last segment of
  * the url to all SiteTree pages (and optionally other DataObjects).
  * It also uses soundex to match similar sounding page links to find alternatives.
- *
- * License: MIT-style license http://opensource.org/licenses/MIT
- * Authors: Techno Joy development team (www.technojoy.co.nz)
  */
 
 class Intelligent404 extends Extension
 {
-
     /**
      * @config
      * allow this to work in dev mode
@@ -57,29 +54,40 @@ class Intelligent404 extends Extension
         ]
     ];
 
-
-
     public function onAfterInit()
     {
+        $error_code = $this->owner->failover->ErrorCode ? $this->owner->failover->ErrorCode : 404;
+
+        if ($error_code != 404) {
+            return; // we only deal with 404
+        }
+
+        // Make sure the SiteTree's 404 page isn't being called
+        // (via `/dev/build`) to generate `assets/error-404.html`
+        $request = !(empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : false;
+        if (
+            $request &&
+            $error_page = ErrorPage::get()->filter('ErrorCode', $error_code)->first()
+        ) {
+            if ($error_page->Link() == $request) {
+                return;
+            }
+        }
+
         if (
             !Director::isDev() ||
             Config::inst()->get('Axllent\\Intelligent404\\Intelligent404', 'allow_in_dev_mode')
         ) {
-
-            $errorcode = $this->owner->failover->ErrorCode ? $this->owner->failover->ErrorCode : 404;
-
             $extract = preg_match('/^([a-z0-9\.\_\-\/]+)/i', $_SERVER['REQUEST_URI'], $rawString);
 
-            if ($errorcode == 404 && $extract) {
-                $uri = preg_replace('/\.(aspx?|html?|php[34]?)$/i', '', $rawString[0]); // trip known page extensions
+            if ($extract) {
+                $uri = preg_replace('/\.(aspx?|html?|php[34]?)$/i', '', $rawString[0]); // skip known page extensions
                 $parts = preg_split('/\//', $uri, -1, PREG_SPLIT_NO_EMPTY);
                 $page_key = array_pop($parts);
                 $sounds_like = soundex($page_key);
-
-                $exact_matches = array();
-                $possible_matches = array();
-
-                $results_list = array();
+                $exact_matches = [];
+                $possible_matches = [];
+                $results_list = [];
 
                 $data_objects = Config::inst()->get('Axllent\\Intelligent404\\Intelligent404', 'data_objects');
 
@@ -116,7 +124,9 @@ class Intelligent404 extends Extension
 
                         $rel_link = Director::makeRelative($link);
 
-                        if (!$rel_link) continue; // no link or /
+                        if (!$rel_link) {
+                            continue; // no link or `/`
+                        }
 
                         $url_parts = preg_split('/\//', $rel_link, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -143,7 +153,7 @@ class Intelligent404 extends Extension
                     return $this->RedirectToPage(array_shift($possible_matches));
                 } elseif ($exact_count > 0 || $possible_count > 0) {
                     $content = $this->owner->customise($results_list)->renderWith(
-                        array('Intelligent404Options')
+                        ['Intelligent404Options']
                     );
                     $this->owner->Content .= $content; // add to $Content
                 }
@@ -156,7 +166,7 @@ class Intelligent404 extends Extension
      * @param string
      * @return 301 response / redirect
      */
-    public function RedirectToPage($url)
+    private function RedirectToPage($url)
     {
         $response = new HTTPResponse();
         $response->redirect($url, 301);

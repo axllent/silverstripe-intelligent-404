@@ -2,6 +2,11 @@
 
 Notable changes to this project will be documented in this file.
 
+## [2.0.2]
+
+- Fix issue where empty static `error-404.hml` is created
+
+
 ## [2.0.1]
 
 - Switch to silverstripe-vendormodule

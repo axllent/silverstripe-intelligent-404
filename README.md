@@ -1,4 +1,7 @@
 # Intelligent 404 Redirector for SilverStripe
+
+### This module has now been archived as it is no longer actively maintained.
+
 An extension to add additional functionality to the existing 404 ErrorPage.
 If a 404 page is called, it tries to guess the intended page by matching up the
 last segment of the url to all SiteTree pages. It also uses soundex to match similar
